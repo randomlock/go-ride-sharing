@@ -23,7 +23,7 @@ func (t *TripManager) NewTrip(rider models.Rider, origin models.Coordinate, dest
     if !t.driverManager.HasAvailableDriver() {
         return "", fmt.Errorf("no drivers are available")
     }
-    if t.IsRiding(rider.Id) {
+    if t.hasOngoingTrip(rider.Id) {
         return "", fmt.Errorf("rider is already riding. Please finish the current trip")
     }
 
@@ -75,10 +75,10 @@ func (t TripManager) Withdraw(tripId string) error  {
     return nil
 }
 
-func (t *TripManager) IsRiding(riderId string) bool {
+func (t *TripManager) hasOngoingTrip(riderId string) bool {
     if trips, exists :=  t.tripsPerRider[riderId]; exists {
         for _, trip := range trips {
-            if _, exists := t.trips[trip.Id]; exists && t.trips[trip.Id].IsTripFinished() {
+            if _, exists := t.trips[trip.Id]; exists && !t.trips[trip.Id].IsTripFinished() {
                 return true
             }
         }
